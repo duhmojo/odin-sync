@@ -1,12 +1,12 @@
-// Draws the app icon (the green tile with the ring and arrow, as on Android)
-// into build-resources/icon.png for the installers. No image tools needed.
+// Draws the app icon (the green O on a transparent background, as on Android)
+// into build-resources/icon.png (installers, tray) and docs/icon.png (website).
+// No image tools needed.
 const fs = require("node:fs");
 const path = require("node:path");
 const zlib = require("node:zlib");
 
 const SIZE = 512;
 const GREEN = [166, 240, 120];
-const INK = [23, 35, 17];
 
 // Coverage of a pixel by a shape, with 4x4 supersampling for smooth edges.
 function coverage(x, y, inside) {
@@ -15,35 +15,21 @@ function coverage(x, y, inside) {
   return hits / 16;
 }
 
-const s = SIZE / 108; // the Android icon is drawn on a 108 grid
-const tile = (x, y) => {
-  const r = 22 * s;
-  const m = 6 * s;
-  const cx = Math.min(Math.max(x, m + r), SIZE - m - r);
-  const cy = Math.min(Math.max(y, m + r), SIZE - m - r);
-  return (x - cx) ** 2 + (y - cy) ** 2 <= r * r && x >= m && y >= m && x <= SIZE - m && y <= SIZE - m;
-};
+// The green O, as on Android (ring of radius 24, stroke 10, on a 66 safe zone),
+// filling the canvas, on a transparent background.
+const s = SIZE / 66;
 const ring = (x, y) => {
-  const d = Math.hypot(x - 54 * s, y - 54 * s);
-  return d >= 28 * s && d <= 36 * s;
-};
-const arrow = (x, y) => {
-  const u = x / s;
-  const v = y / s;
-  if (v >= 52 && v <= 72 && u >= 49 && u <= 59) return true; // shaft
-  if (v >= 36 && v <= 52) return Math.abs(u - 54) <= ((v - 36) / 16) * 14; // head
-  return false;
+  const d = Math.hypot(x - SIZE / 2, y - SIZE / 2);
+  return d >= 19 * s && d <= 29 * s;
 };
 
 const raw = Buffer.alloc((SIZE * 4 + 1) * SIZE);
 for (let y = 0; y < SIZE; y++) {
   raw[y * (SIZE * 4 + 1)] = 0;
   for (let x = 0; x < SIZE; x++) {
-    const a = coverage(x, y, tile);
-    const ink = coverage(x, y, (px, py) => tile(px, py) && (ring(px, py) || arrow(px, py)));
     const i = y * (SIZE * 4 + 1) + 1 + x * 4;
-    for (let c = 0; c < 3; c++) raw[i + c] = Math.round(GREEN[c] * (1 - ink / Math.max(a, 1e-9)) + INK[c] * (ink / Math.max(a, 1e-9)));
-    raw[i + 3] = Math.round(a * 255);
+    for (let c = 0; c < 3; c++) raw[i + c] = GREEN[c];
+    raw[i + 3] = Math.round(coverage(x, y, ring) * 255);
   }
 }
 
@@ -69,4 +55,5 @@ const png = Buffer.concat([
 const out = path.join(__dirname, "..", "build-resources", "icon.png");
 fs.mkdirSync(path.dirname(out), { recursive: true });
 fs.writeFileSync(out, png);
+fs.writeFileSync(path.join(__dirname, "..", "docs", "icon.png"), png);
 console.log(`Wrote ${out} (${png.length} bytes).`);

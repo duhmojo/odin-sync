@@ -114,4 +114,4 @@ Set `ODIN_SYNC_DATA_DIR` to run with separate settings.
 
 ## License
 
-Free to download and use, including commercially. The source is here to read. Copying, modifying or redistributing it needs written permission. See [LICENSE](LICENSE).
+Free to download and use for personal, non-commercial use. The source is here to read. Copying, modifying, redistributing, or bundling it with hardware or other products needs written permission. See [LICENSE](LICENSE).

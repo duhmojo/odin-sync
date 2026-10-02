@@ -1,6 +1,6 @@
 {
   "name": "odin-sync",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "private": true,
   "description": "ROM library and Android file sync over Wi-Fi with the Odin Sync app",
   "main": "main.cjs",
