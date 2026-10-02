@@ -7,7 +7,6 @@ const product = require("./product.json");
 module.exports = {
   appId: product.desktopAppId,
   productName: product.name,
-  artifactName: `${product.id}-\${version}-\${os}-\${arch}.\${ext}`,
   directories: { output: "dist", buildResources: "build-resources" },
   files: [
     "**/*",
@@ -23,7 +22,19 @@ module.exports = {
   win: { target: [{ target: "nsis", arch: ["x64"] }] },
   // The licence is shown by the Windows installer and shipped next to the app.
   extraFiles: ["LICENSE"],
-  nsis: { oneClick: false, allowToChangeInstallationDirectory: true, shortcutName: product.name, license: "LICENSE" },
+  // Fixed file names (no version), so the website links each platform to its
+  // file in the latest release.
+  nsis: {
+    oneClick: false,
+    allowToChangeInstallationDirectory: true,
+    shortcutName: product.name,
+    license: "LICENSE",
+    artifactName: `${product.id}-windows-x64.\${ext}`,
+  },
   linux: { target: ["AppImage", "deb"], category: "Utility", maintainer: product.name },
-  mac: { target: ["dmg"], category: "public.app-category.utilities" },
+  appImage: { artifactName: `${product.id}-linux-x86_64.\${ext}` },
+  deb: { artifactName: `${product.id}-linux-amd64.\${ext}` },
+  // One download for Intel and Apple silicon Macs.
+  mac: { target: [{ target: "dmg", arch: ["universal"] }], category: "public.app-category.utilities" },
+  dmg: { artifactName: `${product.id}-macos.\${ext}` },
 };

@@ -94,7 +94,7 @@ function createFakeReceiver({
         name: entry.name,
         path: `${canonical}/${entry.name}`,
         type: entry.isDirectory() ? "folder" : "file",
-        size: entry.isDirectory() ? 0 : stat.size,
+        size: entry.isDirectory() ? -2 : stat.size,
         modified: Math.floor(stat.mtimeMs),
         readable: true,
         writable: true,

@@ -1,6 +1,6 @@
 {
   "name": "odin-sync",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "private": true,
   "description": "ROM library and Android file sync over Wi-Fi with the Odin Sync app",
   "main": "main.cjs",
@@ -13,7 +13,8 @@
     "build:apk": "node scripts/build-apk.cjs",
     "dist": "node scripts/dist.cjs",
     "setup:android": "node scripts/setup-android.cjs",
-    "rename": "node scripts/rename.cjs"
+    "rename": "node scripts/rename.cjs",
+    "screenshots": "node scripts/screenshots.cjs"
   },
   "devDependencies": {
     "electron": "44.5.0",
