@@ -1,0 +1,26 @@
+{
+  "name": "odin-sync",
+  "version": "0.7.1",
+  "private": true,
+  "description": "ROM library and Android file sync over Wi-Fi with the Odin Sync app",
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test test/*.test.cjs",
+    "check": "node --check main.cjs && node --check preload.cjs && node --check core.cjs && node --check config.cjs && node --check catalog.cjs && node --check plan.cjs && node --check inventory.cjs && node --check transfer.cjs && node --check ui.js && node --check storage-browser.js && node --check view-folders.js && node --check view-devices.js && node --check view-profiles.js && node --check view-library.js && node --check view-sync.js && node --check view-settings.js && node --check app.js && node --check web-session.cjs && node --check web-server.cjs && node --check web-bridge.js && node --check view-web.js && node --check view-media.js && node --check scraping/net.cjs && node --check scraping/systems.cjs && node --check scraping/libretro.cjs && node --check scraping/media.cjs && node --check scraping/roms.cjs && node --check scraping/steam.cjs && node --check scraping/jobs.cjs && node --check scraping/gamenative.cjs && node --check scraping/screenscraper.cjs && node --check esde.cjs && node --check receiver-client.cjs && node --check view-receiver.js && node --check desktop-link.cjs && node --check zip-stream.cjs",
+    "format": "prettier --write .",
+    "test:e2e": "node --test --test-concurrency=1 test-e2e/*.e2e.cjs",
+    "build:apk": "node scripts/build-apk.cjs",
+    "dist": "node scripts/dist.cjs",
+    "setup:android": "node scripts/setup-android.cjs",
+    "rename": "node scripts/rename.cjs"
+  },
+  "devDependencies": {
+    "electron": "44.5.0",
+    "electron-builder": "^26.15.3",
+    "playwright-core": "1.63.0",
+    "prettier": "3.9.9"
+  },
+  "author": "Odin Sync",
+  "license": "SEE LICENSE IN LICENSE"
+}

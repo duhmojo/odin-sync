@@ -1,0 +1,7 @@
+{
+  "name": "Odin Sync",
+  "wordmark": ["ODIN", "SYNC"],
+  "id": "odin-sync",
+  "desktopAppId": "app.odinsync.desktop",
+  "androidPackage": "app.odinsync.receiver"
+}

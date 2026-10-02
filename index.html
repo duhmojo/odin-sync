@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'"
+    />
+    <title>Odin Sync</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <aside>
+      <div class="brand">
+        <span class="logo">O</span>
+        <div>ODIN <b>SYNC</b></div>
+      </div>
+      <div class="nav-label">WORKSPACE</div>
+      <nav>
+        <button data-view="library" class="active">▦ <span>Library</span></button>
+        <button data-view="sync">⇄ <span>Sync</span></button>
+        <button data-view="devices">◉ <span>Devices</span></button>
+        <button data-view="profiles">☷ <span>Device profiles</span></button>
+        <button data-view="folders">▤ <span>Local folders</span></button>
+        <button data-view="settings">⚙ <span>Settings</span></button>
+      </nav>
+      <div class="sidebar-bottom">
+        <span class="dot"></span> Wi-Fi · Odin Sync app
+        <small>v0.7.1</small>
+        <form id="web-logout" method="post" action="/logout" hidden>
+          <button type="submit">Log out</button>
+        </form>
+      </div>
+    </aside>
+    <main>
+      <header>
+        <span id="breadcrumb">Library</span>
+        <span id="sync-chip" class="chip" hidden></span>
+      </header>
+      <section id="library" class="view">
+        <div class="heading">
+          <div>
+            <div class="eyebrow">LIBRARY</div>
+            <h1>Library.</h1>
+            <p>
+              Check what should be on the device. The selection is saved as the device's profile;
+              Sync device copies what is missing and can remove what you unselect.
+            </p>
+          </div>
+          <div class="heading-actions">
+            <label
+              >Device
+              <select id="library-device" aria-label="Library device"></select>
+            </label>
+            <button id="library-compare" disabled>Compare with device</button>
+            <button id="library-review" class="primary" disabled>Sync device →</button>
+          </div>
+        </div>
+        <div id="library-gaps" class="notice warning" hidden></div>
+        <div id="library-compared" class="notice" hidden></div>
+        <div class="library-layout">
+          <div class="panel folder-list">
+            <h2>Local folders</h2>
+            <div id="library-folders"></div>
+            <div id="library-no-folders" class="empty small" hidden>
+              <p>No local folders yet.</p>
+              <button id="library-add-folder" class="primary">＋ Add a local folder</button>
+            </div>
+          </div>
+          <div class="panel browser">
+            <div id="library-browser" hidden>
+              <div class="browser-head">
+                <nav id="library-crumbs" class="crumbs"></nav>
+                <div class="browser-tools">
+                  <input
+                    id="library-search"
+                    placeholder="Filter this list…"
+                    aria-label="Filter this list"
+                  />
+                  <button id="library-reveal" title="Open this folder on the PC">
+                    Open in Explorer
+                  </button>
+                  <button id="library-refresh" title="Re-read this local folder from the PC">
+                    ↻ Reload
+                  </button>
+                </div>
+              </div>
+              <div id="library-location" class="location-row"></div>
+              <p id="library-note" class="muted"></p>
+              <div class="table-wrap">
+                <table class="library-table">
+                  <thead>
+                    <tr>
+                      <th class="check-column"></th>
+                      <th>Name</th>
+                      <th>Size</th>
+                      <th>On the device</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="library-rows"></tbody>
+                </table>
+                <div id="library-empty" class="empty small" hidden></div>
+              </div>
+              <div class="more-row"><button id="library-more" hidden>Show more</button></div>
+              <details id="library-warnings" class="notice" hidden></details>
+            </div>
+            <div id="library-pick" class="empty">
+              <div class="empty-icon">▦</div>
+              <h2>Open a local folder</h2>
+              <p>Pick a folder on the left to browse it. Browsing never needs a device.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="sync" class="view" hidden>
+        <div class="heading">
+          <div>
+            <div class="eyebrow">SYNC</div>
+            <h1>Sync.</h1>
+            <p>
+              Checking compares the device with its profile: what to copy, what changed, and what
+              you unselected. Only files the app copied itself are ever removed.
+            </p>
+          </div>
+          <div class="heading-actions">
+            <label
+              >Device
+              <select id="sync-device" aria-label="Sync device"></select>
+            </label>
+            <button id="sync-check" class="primary">Check device</button>
+          </div>
+        </div>
+        <div id="sync-blocked" class="notice warning" hidden></div>
+        <div id="sync-progress" class="panel progress-panel" hidden>
+          <div class="progress-head">
+            <strong id="progress-phase">Preparing…</strong>
+            <span id="progress-numbers"></span>
+            <button id="sync-stop" class="danger">Stop</button>
+          </div>
+          <progress id="progress-total" max="1" value="0"></progress>
+          <div class="progress-meta">
+            <span id="progress-bytes"></span><span id="progress-speed"></span
+            ><span id="progress-eta"></span>
+          </div>
+          <div class="progress-file">
+            <span id="progress-file"></span>
+            <progress id="progress-current" max="1" value="0"></progress>
+          </div>
+        </div>
+        <div id="sync-results" class="panel" hidden></div>
+        <div id="sync-plan" hidden>
+          <div class="stats four">
+            <article class="stat-add">
+              <small>WILL COPY</small><strong id="count-copy">0</strong
+              ><span id="bytes-copy"></span>
+            </article>
+            <article class="stat-remove">
+              <small>NO LONGER IN PROFILE</small><strong id="count-remove">0</strong
+              ><span id="bytes-remove"></span>
+            </article>
+            <article class="stat-different">
+              <small>DIFFERENT ON DEVICE</small><strong id="count-different">0</strong
+              ><span id="bytes-different"></span>
+            </article>
+            <article>
+              <small>ALREADY ON DEVICE</small><strong id="count-unchanged">0</strong
+              ><span id="bytes-unchanged"></span>
+            </article>
+          </div>
+          <div id="sync-restore" class="notice warning" hidden></div>
+          <div class="sync-options">
+            <label class="inline-check" id="sync-remove-label"
+              ><input type="checkbox" id="sync-remove" /><span id="sync-remove-text"></span
+            ></label>
+            <label class="inline-check" id="sync-replace-label"
+              ><input type="checkbox" id="sync-replace" /><span id="sync-replace-text"></span
+            ></label>
+          </div>
+          <div class="toolbar">
+            <span id="sync-total" class="muted"></span>
+            <button id="sync-start" class="primary" disabled>Start sync</button>
+          </div>
+          <div id="sync-space" class="space-row"></div>
+          <div id="sync-temps" class="notice warning" hidden></div>
+          <details id="sync-warnings" class="notice" hidden></details>
+          <details id="sync-kept" class="notice warning" hidden></details>
+          <div class="toolbar">
+            <select id="sync-filter" aria-label="Show">
+              <option value="changes">Changes (copy and remove)</option>
+              <option value="Add">New</option>
+              <option value="Update">Updated on the PC</option>
+              <option value="Remove">No longer in profile</option>
+              <option value="Different">Different on device</option>
+              <option value="Unchanged">Already on device</option>
+              <option value="all">Everything in the profile</option>
+            </select>
+            <input id="sync-search" placeholder="Filter…" aria-label="Filter" />
+          </div>
+          <div class="table-wrap">
+            <table class="sync-table">
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Status</th>
+                  <th>Size</th>
+                  <th>On the device</th>
+                </tr>
+              </thead>
+              <tbody id="sync-rows"></tbody>
+            </table>
+            <div id="sync-empty" class="empty small" hidden><p>Nothing in this list.</p></div>
+          </div>
+          <div class="pagination">
+            <button id="sync-prev">← Previous</button><span id="sync-page"></span
+            ><button id="sync-next">Next →</button>
+          </div>
+        </div>
+        <div id="sync-intro" class="empty">
+          <div class="empty-icon">⇄</div>
+          <h2>Check the device to see what will change</h2>
+          <p>Choose content for this device in Library; the selection is saved as its profile.</p>
+        </div>
+      </section>
+
+      <section id="devices" class="view" hidden>
+        <div id="device-list">
+          <div class="heading">
+            <div>
+              <div class="eyebrow">DEVICES</div>
+              <h1>Devices.</h1>
+              <p>Your devices and their connection status.</p>
+            </div>
+            <button id="show-add-device" class="primary">＋ Add a device</button>
+          </div>
+          <div class="toolbar">
+            <span id="devices-status" class="muted">Status not checked</span
+            ><button id="refresh-status">Refresh status</button>
+          </div>
+          <div id="install-here" class="notice install-here" hidden></div>
+          <div id="saved-devices"></div>
+          <section class="panel" id="receiver-panel">
+            <div class="panel-title">
+              <h2>Add a device</h2>
+            </div>
+            <ol class="receiver-steps">
+              <li>
+                <b>Install the Odin Sync app.</b> Open this link on your Odin and install the app:
+                <ul id="receiver-urls" class="mono-list"></ul>
+                <span id="receiver-install-text" class="muted"></span>
+              </li>
+              <li>
+                <b>Pair.</b> Open the app on the device. It finds this PC; enter your Odin Sync PIN
+                there. The device appears here.
+              </li>
+            </ol>
+            <div id="receiver-paired" class="notice" hidden></div>
+            <p class="muted">
+              While the app is open (it keeps running with the screen off), the PC and the device
+              find each other by themselves, even when an IP address changes.
+            </p>
+          </section>
+        </div>
+      </section>
+
+      <section id="profiles" class="view" hidden>
+        <div id="profile-list">
+          <div class="heading">
+            <div>
+              <div class="eyebrow">DEVICE PROFILES</div>
+              <h1>Device profiles.</h1>
+              <p>
+                Where each local folder goes on each device. Subfolders and games can be moved
+                somewhere else from Library.
+              </p>
+            </div>
+          </div>
+          <div id="profile-cards"></div>
+          <div id="profiles-empty" class="empty">
+            <h2>Add a device first</h2>
+            <p>Each saved device gets its own profile automatically.</p>
+          </div>
+        </div>
+        <div id="destination-picker" class="panel" hidden></div>
+      </section>
+
+      <section id="folders" class="view" hidden>
+        <div id="folder-list">
+          <div class="heading">
+            <div>
+              <div class="eyebrow">LOCAL FOLDERS</div>
+              <h1>Local folders.</h1>
+              <p>
+                The folders on this PC that make up your library. The type decides how Library shows
+                them.
+              </p>
+            </div>
+            <button id="add-folder" class="primary">＋ Add folder</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Path</th>
+                  <th>Type</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="folder-rows"></tbody>
+            </table>
+            <div id="folders-empty" class="empty small">
+              <p>Add a folder on this PC and choose what it contains.</p>
+            </div>
+          </div>
+          <form id="type-filters" class="panel filters-panel">
+            <h2>Filters for every folder of a type</h2>
+            <p>
+              Regular expressions, case-insensitive, matched against folder names or file names.
+              They add to each folder’s own filters. Games are never filtered: a game folder always
+              syncs complete.
+            </p>
+            <div id="type-filter-rows"></div>
+            <div class="form-actions">
+              <button type="submit" class="primary">Save filters</button>
+            </div>
+          </form>
+        </div>
+        <div id="folder-editor" hidden>
+          <div class="heading">
+            <div>
+              <div class="eyebrow">LOCAL FOLDER</div>
+              <h1 id="folder-editor-title">Add folder.</h1>
+            </div>
+            <button id="folder-cancel-top" type="button">Cancel</button>
+          </div>
+          <form id="folder-form" class="panel">
+            <div class="form-grid">
+              <label
+                >Name<input
+                  id="folder-name"
+                  required
+                  maxlength="120"
+                  placeholder="e.g. PlayStation"
+              /></label>
+              <label
+                >Content type<select id="folder-type">
+                  <option value="roms">ROMs</option>
+                  <option value="games">Games</option>
+                  <option value="music">Music</option>
+                  <option value="videos">Videos</option>
+                  <option value="files">General files</option>
+                </select></label
+              >
+            </div>
+            <label class="wide"
+              >Folder on this PC
+              <div class="input-action">
+                <input
+                  id="folder-path"
+                  readonly
+                  required
+                  placeholder="Choose a folder on this PC"
+                /><button id="folder-browse" type="button">Browse…</button>
+              </div></label
+            >
+            <p id="folder-type-help" class="muted"></p>
+            <label id="folder-system-label" class="wide"
+              >ES-DE system (for artwork and metadata)<select id="folder-system">
+                <option value="">Automatic, from folder names (psx, nds, snes, ...)</option>
+              </select></label
+            >
+            <label class="inline-check"
+              ><input id="folder-list-files" type="checkbox" />List individual files in the sync
+              review (off: one row per game or item)</label
+            >
+            <p class="muted">
+              System metadata is always ignored: .DS_Store, ._ files and __MACOSX (everywhere), and
+              Thumbs.db and desktop.ini (outside Games).
+            </p>
+            <div id="folder-filter-fields">
+              <label class="inline-check"
+                ><input id="folder-subfolders" type="checkbox" />Include subfolders</label
+              >
+              <div class="form-grid">
+                <label
+                  >File extensions<input
+                    id="folder-extensions"
+                    placeholder="e.g. nds nes chd — empty uses the type’s defaults, * for all files"
+                /></label>
+                <span></span>
+                <label
+                  >Exclude folders (regex)<input
+                    id="folder-exclude-folders"
+                    placeholder="e.g. ^(media|bios)$"
+                /></label>
+                <label
+                  >Exclude files (regex)<input
+                    id="folder-exclude-files"
+                    placeholder="e.g. \(Beta\)|\.txt$"
+                /></label>
+              </div>
+            </div>
+            <p id="folder-error" class="result-error" role="alert"></p>
+            <div class="form-actions">
+              <button id="folder-remove" type="button" class="danger" hidden>Remove folder</button>
+              <div>
+                <button id="folder-cancel" type="button">Cancel</button>
+                <button type="submit" class="primary">Save folder</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section id="settings" class="view" hidden>
+        <div class="heading">
+          <div>
+            <div class="eyebrow">SETTINGS</div>
+            <h1>Settings.</h1>
+          </div>
+        </div>
+        <article class="panel">
+          <h2>Saved data</h2>
+          <p>Settings, reports and sync logs are stored in <code id="data-dir"></code>.</p>
+        </article>
+        <article class="panel" id="scraping-panel">
+          <h2>Artwork and metadata</h2>
+          <p>
+            Without an account, ROMs get covers, screenshots and basic details from libretro and PC
+            games from Steam. A ScreenScraper account (optional) adds descriptions and better
+            matches for ROMs. ScreenScraper also requires developer credentials, which you request
+            on screenscraper.fr; scraping then goes one request at a time within its limits.
+          </p>
+          <form id="scraping-form">
+            <div class="form-grid">
+              <label>ScreenScraper user<input id="ss-user" autocomplete="off" /></label>
+              <label
+                >ScreenScraper password<input
+                  id="ss-password"
+                  type="password"
+                  autocomplete="new-password"
+              /></label>
+              <label>Developer id<input id="ss-dev-id" autocomplete="off" /></label>
+              <label
+                >Developer password<input
+                  id="ss-dev-password"
+                  type="password"
+                  autocomplete="new-password"
+              /></label>
+            </div>
+            <p id="scraping-status" class="muted"></p>
+            <div class="form-actions">
+              <button id="scraping-test" type="button">Test account</button>
+              <button type="submit" class="primary">Save</button>
+            </div>
+          </form>
+        </article>
+        <article class="panel" id="startup-panel">
+          <h2>Running in the background</h2>
+          <p>
+            Closing the window keeps Odin Sync running in the tray, so your devices can find this
+            PC and sync. Quit it from the tray icon's menu.
+          </p>
+          <label class="inline-check"
+            ><input id="startup-enabled" type="checkbox" />Start Odin Sync with the system (in the
+            tray)</label
+          >
+          <p id="startup-note" class="muted"></p>
+        </article>
+        <article class="panel" id="web-panel">
+          <h2>Web server and PIN</h2>
+          <p>
+            Odin Sync runs a small web server on the local network for the Odin Sync app and for
+            browsers (for example the Odin's own browser). Browsers sign in with your PIN; while a
+            browser is in control, this window is paused until you take control back.
+          </p>
+          <p id="web-status" class="muted"></p>
+          <form id="web-form">
+            <div class="form-grid">
+              <label
+                >Port<input id="web-port" type="number" min="1024" max="65535" required
+              /></label>
+              <label
+                >New PIN (6 to 12 digits)<input
+                  id="web-pin"
+                  type="password"
+                  inputmode="numeric"
+                  autocomplete="new-password"
+                  placeholder="Leave empty to keep the current PIN"
+              /></label>
+            </div>
+            <div class="form-actions">
+              <button type="button" id="web-restart">Restart server</button
+              ><button type="submit" class="primary">Save</button>
+            </div>
+          </form>
+        </article>
+        <article class="panel danger-zone">
+          <h2>Reset all settings</h2>
+          <p>
+            Clears local folders, filters, devices, profiles and the library cache. A backup of the
+            current settings is written first. Files on this PC and on your devices are never
+            touched. Devices need to be paired with the Odin Sync app again afterwards.
+          </p>
+          <button id="reset-settings" class="danger">Reset all settings…</button>
+        </article>
+      </section>
+
+      <footer>
+        <span id="status">Ready.</span
+        ><span id="busy-indicator" class="busy-indicator" role="status" aria-live="polite" hidden
+          ><span class="spinner" aria-hidden="true"></span>Working…</span
+        >
+      </footer>
+    </main>
+    <div id="control-overlay" class="overlay" hidden>
+      <div class="panel overlay-box">
+        <h2 id="control-title"></h2>
+        <p id="control-text"></p>
+        <button id="control-action" class="primary"></button>
+      </div>
+    </div>
+    <dialog id="details-dialog" class="details-dialog">
+      <div class="details-head">
+        <h2 id="details-title"></h2>
+        <button id="details-close" type="button">Close</button>
+      </div>
+      <div id="details-body"></div>
+    </dialog>
+    <dialog id="pin-dialog">
+      <form id="pin-form" method="dialog">
+        <div class="welcome-brand">
+          <span class="logo">O</span>
+          <div>
+            <h2>Welcome to <span>Odin Sync</span></h2>
+            <p>Syncs folders from this PC to paired Android devices.</p>
+          </div>
+        </div>
+        <ol class="welcome-steps">
+          <li><b>Add your folders</b><span>Games, ROMs, music and videos on this PC.</span></li>
+          <li><b>Install the app</b><span>A small Odin Sync app on your Android device, paired with this PC.</span></li>
+          <li><b>Pick and sync</b><span>Choose what goes on each device; it copies over Wi-Fi.</span></li>
+        </ol>
+        <div class="welcome-pin">
+          <h3>Set your PIN to start</h3>
+          <p>You'll use it to pair devices and to sign in from a browser.</p>
+          <div class="welcome-fields">
+            <label
+              >PIN (6–12 digits)<input id="pin-new" type="password" inputmode="numeric" autocomplete="new-password" required
+            /></label>
+            <label
+              >Again<input id="pin-again" type="password" inputmode="numeric" autocomplete="new-password" required
+            /></label>
+          </div>
+          <label class="inline-check" id="welcome-startup-label"
+            ><input id="welcome-startup" type="checkbox" checked />Start Odin Sync with the system, in the
+            tray</label
+          >
+          <p id="pin-error" class="result-error"></p>
+          <button id="pin-save" type="submit" class="primary">Set PIN and get started</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="confirm-dialog">
+      <form method="dialog">
+        <h2 id="confirm-title"></h2>
+        <p id="confirm-text"></p>
+        <input id="confirm-input" hidden aria-label="Name" />
+        <div class="form-actions">
+          <span></span>
+          <div>
+            <button value="cancel">Cancel</button>
+            <button id="confirm-ok" value="ok" class="danger">Confirm</button>
+          </div>
+        </div>
+      </form>
+    </dialog>
+    <script src="ui.js"></script>
+    <script src="storage-browser.js"></script>
+    <script src="view-folders.js"></script>
+    <script src="view-devices.js"></script>
+    <script src="view-receiver.js"></script>
+    <script src="view-profiles.js"></script>
+    <script src="view-library.js"></script>
+    <script src="view-media.js"></script>
+    <script src="view-sync.js"></script>
+    <script src="view-settings.js"></script>
+    <script src="view-web.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

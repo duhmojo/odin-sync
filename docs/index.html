@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Odin Sync</title>
+    <meta
+      name="description"
+      content="Sync your PC game and media library to your Android handheld over Wi-Fi. Fast, verified, organised."
+    />
+    <link rel="icon" href="icon.png" />
+    <style>
+      :root {
+        --bg: #0d1219;
+        --panel: #151d29;
+        --line: #263142;
+        --text: #e9eef7;
+        --muted: #8f9bb0;
+        --accent: #a6f078;
+        --ink: #172311;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      }
+      a {
+        color: var(--accent);
+      }
+      .wrap {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 0 16px;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 22px 0;
+      }
+      header img {
+        width: 40px;
+        height: 40px;
+      }
+      header b {
+        letter-spacing: 2px;
+        font-size: 18px;
+      }
+      header b span {
+        color: var(--accent);
+      }
+      header nav {
+        margin-left: auto;
+        display: flex;
+        gap: 18px;
+      }
+      header nav a {
+        color: var(--muted);
+        text-decoration: none;
+      }
+      .hero {
+        padding: 60px 0 40px;
+        text-align: center;
+      }
+      .hero h1 {
+        font-size: clamp(32px, 6vw, 58px);
+        line-height: 1.1;
+        margin: 0 0 18px;
+      }
+      .hero h1 span {
+        color: var(--accent);
+      }
+      .hero p {
+        color: var(--muted);
+        font-size: 19px;
+        max-width: 680px;
+        margin: 0 auto 30px;
+      }
+      .buttons {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+      }
+      .button {
+        display: inline-block;
+        padding: 14px 22px;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+        background: var(--panel);
+        color: var(--text);
+        text-decoration: none;
+        font-weight: 650;
+      }
+      .button.primary {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: var(--ink);
+      }
+      .small {
+        color: var(--muted);
+        font-size: 14px;
+        margin-top: 14px;
+      }
+      .shot {
+        margin: 40px auto 0;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: var(--panel);
+        aspect-ratio: 16 / 9;
+        max-width: 960px;
+        display: grid;
+        place-items: center;
+        color: var(--muted);
+      }
+      section h2 {
+        font-size: 30px;
+        margin: 70px 0 24px;
+        text-align: center;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 16px;
+      }
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 20px;
+      }
+      .card h3 {
+        margin: 0 0 6px;
+        font-size: 17px;
+      }
+      .card p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 15px;
+      }
+      .steps {
+        counter-reset: step;
+        list-style: none;
+        padding: 0;
+        max-width: 720px;
+        margin: 0 auto;
+        display: grid;
+        gap: 14px;
+      }
+      .steps li {
+        counter-increment: step;
+        display: grid;
+        grid-template-columns: 40px 1fr;
+        gap: 14px;
+        align-items: start;
+      }
+      .steps li::before {
+        content: counter(step);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--accent);
+        color: var(--ink);
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+      }
+      .steps b {
+        display: block;
+      }
+      .steps span {
+        color: var(--muted);
+      }
+      footer {
+        margin: 80px 0 40px;
+        color: var(--muted);
+        font-size: 14px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <img src="icon.png" alt="" />
+        <b>ODIN <span>SYNC</span></b>
+        <nav>
+          <a href="#features">Features</a>
+          <a href="#start">Get started</a>
+          <a class="source" href="#">Source</a>
+        </nav>
+      </header>
+
+      <div class="hero">
+        <h1>Your whole library,<br /><span>on your handheld.</span></h1>
+        <p>
+          Pick your ROMs, PC games, music and videos on the PC. Hit Sync. Odin Sync sends exactly
+          what belongs on each Android handheld over Wi-Fi: fast, verified and organised.
+        </p>
+        <div class="buttons">
+          <a class="button primary download" data-os="windows" href="#">Download for Windows</a>
+          <a class="button download" data-os="linux" href="#">Linux</a>
+          <a class="button download" data-os="mac" href="#">macOS</a>
+        </div>
+        <p class="small">Free. The Android app installs from the PC app, no store needed.</p>
+        <div class="shot">Screenshot: the Library with covers and sync badges</div>
+      </div>
+
+      <section id="features">
+        <h2>Why it's great</h2>
+        <div class="grid">
+          <div class="card">
+            <h3>Fast, verified transfers</h3>
+            <p>Straight over your Wi-Fi at full speed, checked with SHA-256 on both ends. Keeps going with the screen off.</p>
+          </div>
+          <div class="card">
+            <h3>A profile per device</h3>
+            <p>Where every folder goes and exactly what belongs on each handheld. Add to a folder and it comes along.</p>
+          </div>
+          <div class="card">
+            <h3>Safe removals</h3>
+            <p>It knows every file it copied. Removing from a profile removes only those; your saves are never touched.</p>
+          </div>
+          <div class="card">
+            <h3>Compare with device</h3>
+            <p>See what was deleted on the handheld and what isn't there yet, right in your Library.</p>
+          </div>
+          <div class="card">
+            <h3>Artwork and ES-DE</h3>
+            <p>Covers, screenshots and details from libretro, ScreenScraper and Steam, uploaded into ES-DE.</p>
+          </div>
+          <div class="card">
+            <h3>GameNative configs</h3>
+            <p>The best community config for each PC game on your GPU, saved ready to import.</p>
+          </div>
+          <div class="card">
+            <h3>Control it from the couch</h3>
+            <p>Open Odin Sync from the handheld and its browser lands in your Library, signed in.</p>
+          </div>
+          <div class="card">
+            <h3>Plays nice with games</h3>
+            <p>Low impact transfers cap the speed so you can keep playing while it syncs.</p>
+          </div>
+          <div class="card">
+            <h3>Finds your devices</h3>
+            <p>The PC and the app remember each other and reconnect by themselves, even on new IPs.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="start">
+        <h2>Up and running in minutes</h2>
+        <ol class="steps">
+          <li><div><b>Install Odin Sync on your PC</b><span>and set your PIN.</span></div></li>
+          <li><div><b>Add your folders</b><span>ROMs, PC games, music, videos, anything.</span></div></li>
+          <li><div><b>Install the app on your handheld</b><span>from the link in Devices; allow it to access files.</span></div></li>
+          <li><div><b>Pair</b><span>tap Find Odin Sync on the PC and enter your PIN.</span></div></li>
+          <li><div><b>Pick and sync</b><span>tick what you want in Library and press Sync device.</span></div></li>
+        </ol>
+      </section>
+
+      <footer>
+        Works with the AYN Odin, Retroid, AYANEO, Anbernic and any Android 11+ device.<br />
+        Free to use. See the <a class="license" href="#">license</a>.
+      </footer>
+    </div>
+    <script>
+      // On GitHub Pages (<owner>.github.io/<repo>/) the links point at that repository.
+      const owner = location.hostname.endsWith(".github.io") ? location.hostname.split(".")[0] : "";
+      const repo = location.pathname.split("/").filter(Boolean)[0] || "";
+      if (owner && repo) {
+        const base = `https://github.com/${owner}/${repo}`;
+        for (const a of document.querySelectorAll(".download")) a.href = `${base}/releases/latest`;
+        document.querySelector(".source").href = base;
+        document.querySelector(".license").href = `${base}/blob/main/LICENSE`;
+      }
+      // The button for the visitor's own system comes first.
+      const os = /Mac/.test(navigator.platform) ? "mac" : /Linux/.test(navigator.platform) ? "linux" : "windows";
+      for (const a of document.querySelectorAll(".download")) {
+        a.classList.toggle("primary", a.dataset.os === os);
+        if (a.dataset.os === os) a.textContent = `Download for ${{ windows: "Windows", linux: "Linux", mac: "macOS" }[os]}`;
+      }
+    </script>
+  </body>
+</html>
